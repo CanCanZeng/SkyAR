@@ -1,3 +1,9 @@
+# update
+
+This git is forked from https://github.com/jiupinjia/SkyAR.git . Thanks them for their great work!
+I just add a function to output the raw sky mask.
+
+
 # SkyAR 
 
 [Preprint](<https://arxiv.org/abs/2010.11800>) | [Project Page](<https://jiupinjia.github.io/skyar/>) | [Google Colab](<https://colab.research.google.com/drive/1-BqXD3EzDY6PHRdwb3cWayk2KictbFaz?usp=sharing>) 
