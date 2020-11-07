@@ -134,6 +134,43 @@ class SkyFilter():
             img_HD_prev = img_HD
 
 
+    def run_imgseq_sky_mask(self):
+
+        print('running evaluation...')
+        img_names = os.listdir(self.datadir)
+        img_HD_prev = None
+
+        for idx in range(len(img_names)):
+
+            this_dir = os.path.join(self.datadir, img_names[idx])
+            img_HD = cv2.imread(this_dir, cv2.IMREAD_COLOR)
+            img_HD = self.cvtcolor_and_resize(img_HD)
+
+            if img_HD_prev is None:
+                img_HD_prev = img_HD
+
+            h, w, c = img_HD.shape
+            img = cv2.resize(img_HD, (self.in_size_w, self.in_size_h))
+
+            img = np.array(img, dtype=np.float32)
+            img = torch.tensor(img).permute([2, 0, 1]).unsqueeze(0)
+
+            with torch.no_grad():
+                G_pred = self.net_G(img.to(device))
+                #G_pred = torch.nn.functional.interpolate(G_pred, (h, w))
+                G_pred = G_pred[0, :].permute([1, 2, 0])
+                G_pred = torch.cat([G_pred, G_pred, G_pred], dim=-1)
+                G_pred = np.array(G_pred.detach().cpu())
+                G_pred = np.clip(G_pred, a_max=1.0, a_min=0.0)
+
+            if self.save_jpgs:
+                fpath = os.path.join(args.output_dir, img_names[idx])
+                # plt.imsave(fpath[:-4] + '_input.jpg', img_HD)
+                plt.imsave(fpath[:-4] + '_mask.jpg', G_pred)
+
+            print('processing: %d / %d ...' % (idx, len(img_names)))
+
+            img_HD_prev = img_HD
 
 
     def run_video(self):
@@ -178,6 +215,8 @@ class SkyFilter():
             self.run_imgseq()
         elif self.input_mode == 'video':
             self.run_video()
+        elif self.input_mode == 'seq_sky_mask':
+            self.run_imgseq_sky_mask()
         else:
             print('wrong input_mode, select one in [seq, video')
             exit()
