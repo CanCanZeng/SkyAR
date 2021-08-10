@@ -17,6 +17,33 @@ parser = argparse.ArgumentParser(description='SKYAR')
 parser.add_argument('--path', type=str, default='./config/config-canyon-jupiter.json', metavar='str',
                     help='configurations')
 
+
+def GetFileNamesRecursive(rootPath, file_types = ['.jpg', '.png']) :
+    if len(file_types) > 0:
+        for file_type in file_types:
+            file_type = file_type.lower()
+
+    abs_file_paths = []
+    for root, dirnames, filenames in os.walk(rootPath):
+        for filename in filenames:
+            if len(file_types) > 0:
+                suffix = os.path.splitext(filename)[-1]
+                suffix = suffix.lower()
+                if suffix not in file_types:
+                    continue
+
+            abs_file_paths.append(os.path.join(root, filename))
+
+    abs_file_paths = sorted(abs_file_paths)
+
+    file_paths = []
+    for file_path in abs_file_paths :
+        file_path = file_path[len(rootPath) + 1:]
+        file_paths.append(file_path)
+
+    return file_paths, abs_file_paths
+
+
 class SkyFilter():
 
     def __init__(self, args):
@@ -137,7 +164,7 @@ class SkyFilter():
     def run_imgseq_sky_mask(self):
 
         print('running evaluation...')
-        img_names = os.listdir(self.datadir)
+        img_names, img_paths_full = GetFileNamesRecursive(self.datadir)
         img_HD_prev = None
 
         for idx in range(len(img_names)):
@@ -165,6 +192,7 @@ class SkyFilter():
 
             if self.save_jpgs:
                 fpath = os.path.join(args.output_dir, img_names[idx])
+                os.makedirs(os.path.abspath(os.path.join(fpath, os.pardir)), exist_ok=True)
                 # plt.imsave(fpath[:-4] + '_input.jpg', img_HD)
                 plt.imsave(fpath[:-4] + '_mask.jpg', G_pred)
 
