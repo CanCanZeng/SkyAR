@@ -14,8 +14,10 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 parser = argparse.ArgumentParser(description='SKYAR')
-parser.add_argument('--path', type=str, default='./config/config-canyon-jupiter.json', metavar='str',
+parser.add_argument('--path', type=str, default='./config/config-just-skymask.json', metavar='str',
                     help='configurations')
+parser.add_argument('--data_folder', type=str, default='', help='folder to data folder')
+parser.add_argument('--output_folder', type=str, default='', help='folder to output folder')
 
 
 def GetFileNamesRecursive(rootPath, file_types = ['.jpg', '.png']) :
@@ -252,8 +254,16 @@ class SkyFilter():
 
 if __name__ == '__main__':
 
-    config_path = parser.parse_args().path
+    parser = parser.parse_args()
+    config_path = parser.path
     args = utils.parse_config(config_path)
+
+    if len(parser.data_folder) :
+        args.datadir = parser.data_folder
+
+    if len(parser.output_folder) :
+        args.output_dir = parser.output_folder
+
     sf = SkyFilter(args)
     sf.run()
 
