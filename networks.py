@@ -153,7 +153,7 @@ class ResNet50FCN(torch.nn.Module):
         member variables.
         """
         super(ResNet50FCN, self).__init__()
-        self.resnet = models.resnet50(pretrained=True)
+        self.resnet = models.resnet50(pretrained=False)
         self.relu = nn.ReLU()
         self.upsample = nn.Upsample(scale_factor=2)
         self.coordconv = coordconv
